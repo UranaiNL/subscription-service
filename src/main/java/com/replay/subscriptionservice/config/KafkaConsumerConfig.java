@@ -2,6 +2,8 @@ package com.replay.subscriptionservice.config;
 
 import com.replay.subscriptionservice.event.ReplayUploadedEvent;
 import com.replay.subscriptionservice.event.ReplayUploadedEventDeserializer;
+import com.replay.subscriptionservice.service.SubscriptionService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,7 +21,10 @@ import java.util.Map;
 @Configuration
 @EnableKafka
 @Slf4j
+@AllArgsConstructor
 public class KafkaConsumerConfig {
+
+    private final SubscriptionService subscriptionService;
 
     @Bean
     public ConsumerFactory<String, ReplayUploadedEvent> consumerFactory() {
@@ -39,6 +44,6 @@ public class KafkaConsumerConfig {
     @KafkaListener(topics = "subscriptionTopic")
     public void handleUpload(ReplayUploadedEvent replayUploadedEvent){
         log.info("Received Notification - {} uploaded by {}", replayUploadedEvent.getId(), replayUploadedEvent.getUploaderId());
-        // TODO: Email notification Functionality
+        subscriptionService.notifySubscriptions(replayUploadedEvent);
     }
 }
