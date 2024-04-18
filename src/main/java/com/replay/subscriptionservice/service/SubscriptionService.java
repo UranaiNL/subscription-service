@@ -1,14 +1,15 @@
 package com.replay.subscriptionservice.service;
 
+import com.replay.subscriptionservice.config.RabbitMQConfig;
 import com.replay.subscriptionservice.dto.SubscriptionRequest;
 import com.replay.subscriptionservice.event.ReplayUploadedEvent;
 import com.replay.subscriptionservice.model.Subscription;
 import com.replay.subscriptionservice.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,16 +41,18 @@ public class SubscriptionService {
         return subscriptionRepository.findAllBySubscribedToAndType(subscriptionRequest.getSubscribedTo(), subscriptionRequest.getType());
     }
 
+    @RabbitListener(queues = RabbitMQConfig.REPLAY_QUEUE)
     public void notifySubscriptions(ReplayUploadedEvent replayUploadedEvent){
-        List<String> subscriptionTypes = new ArrayList<>(List.of("uploader", "character", "player"));
-        List<Subscription> subscriptionsToNotify = new ArrayList<>();
-        for(String type : subscriptionTypes){
-            SubscriptionRequest request = mapToSubscriptionRequest(replayUploadedEvent, type);
-            subscriptionsToNotify.addAll(findAllSubscriptonsBySubscribedToAndType(request));
-        }
-        for (Subscription subscription : subscriptionsToNotify){
-            return;
-        }
+        log.info("Notifying subscriptions that id {} has uploaded", replayUploadedEvent.getUploaderId());
+//        List<String> subscriptionTypes = new ArrayList<>(List.of("uploader", "character", "player"));
+//        List<Subscription> subscriptionsToNotify = new ArrayList<>();
+//        for(String type : subscriptionTypes){
+//            SubscriptionRequest request = mapToSubscriptionRequest(replayUploadedEvent, type);
+//            subscriptionsToNotify.addAll(findAllSubscriptonsBySubscribedToAndType(request));
+//        }
+//        for (Subscription subscription : subscriptionsToNotify){
+//            return;
+//        }
     }
 
     private SubscriptionRequest mapToSubscriptionRequest(ReplayUploadedEvent replayUploadedEvent, String type) {
