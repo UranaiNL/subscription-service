@@ -1,6 +1,5 @@
 package com.replay.subscriptionservice.service;
 
-import com.replay.subscriptionservice.config.RabbitMQConfig;
 import com.replay.subscriptionservice.dto.SubscriptionRequest;
 import com.replay.subscriptionservice.event.ReplayUploadedEvent;
 import com.replay.subscriptionservice.model.Subscription;
@@ -41,7 +40,7 @@ public class SubscriptionService {
         return subscriptionRepository.findAllBySubscribedToAndType(subscriptionRequest.getSubscribedTo(), subscriptionRequest.getType());
     }
 
-    @RabbitListener(queues = RabbitMQConfig.REPLAY_QUEUE)
+    @RabbitListener(queues = "subscription_queue")
     public void notifySubscriptions(ReplayUploadedEvent replayUploadedEvent){
         log.info("Notifying subscriptions that id {} has uploaded", replayUploadedEvent.getUploaderId());
 //        List<String> subscriptionTypes = new ArrayList<>(List.of("uploader", "character", "player"));
